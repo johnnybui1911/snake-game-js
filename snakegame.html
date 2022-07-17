@@ -20,15 +20,25 @@
     const snakeboard = document.getElementById("snakeboard");
     const snakeboard_ctx = snakeboard.getContext('2d');
 
-    const dx = 10;
-    const dy = 0;
+    const VELOCITY = 10;
+    let dx = VELOCITY;
+    let dy = 0;
+    let changingDirection = false;
 
-    let snake = [{x: 200, y: 200},  {x: 190, y: 200},  {x: 180, y: 200},  {x: 170, y: 200},  {x: 160, y: 200}];
+    let snake = [{x: 200, y: 200}, {x: 190, y: 200}, {x: 180, y: 200}, {x: 170, y: 200}, {x: 160, y: 200}, {x: 150, y: 200}];
 
     // start a game
     main();
 
+    // handle direction changing
+    document.addEventListener("keydown", changeDirection);
+
     function main() {
+      if (hasGameEnded()) {
+        return;
+      }
+
+      changingDirection = false;
       setTimeout(() => {
         clearCanvas();
         moveSnake();
@@ -67,7 +77,65 @@
 
       // remove the last element from the snake
       snake.pop();
-      
+    }
+
+    function changeDirection(event) {
+      // prevent snake from changing too quickly
+      if (changingDirection) return;
+      changingDirection = true;
+
+      const LEFT_KEY = 'ArrowLeft';
+      const RIGHT_KEY = 'ArrowRight';
+      const UP_KEY = 'ArrowUp';
+      const DOWN_KEY = 'ArrowDown';
+
+      const key = event.key;
+      const goingUp = dy === -VELOCITY;
+      const goingDown = dy === VELOCITY;
+      const goingRight = dx === VELOCITY;  
+      const goingLeft = dx === -VELOCITY;
+
+      // move left
+      if (key === LEFT_KEY && !goingRight) {
+        dx = -VELOCITY;
+        dy = 0;
+      }
+
+      // move up
+      if (key === UP_KEY && !goingDown) {
+        dx = 0;
+        dy = -VELOCITY;
+      }
+
+      // move right
+      if (key === RIGHT_KEY && !goingLeft) {
+        dx = VELOCITY;
+        dy = 0;
+      }
+
+      // move down
+      if (key === DOWN_KEY && !goingUp) {
+        dx = 0;
+        dy = VELOCITY;
+      }
+    }
+
+    function hasGameEnded() {
+      // check if head of the snake collides with its body
+      const head = snake[0];
+      for (let i = 1; i < snake.length; i++) {
+        if (head.x === snake[i].x && head.y === snake[i].y) {
+          return true;
+        }  
+      }
+
+      // check if head of snake collides with canvas boundary
+      const hitLeftWall = head.x < 0 + VELOCITY;
+      const hitRightWall = head.x >= snakeboard.width - VELOCITY;
+      const hitTopWall = head.y < 0 + VELOCITY;
+      const hitBottomWall = head.y >= snakeboard.height - VELOCITY;
+
+      return hitLeftWall || hitRightWall || hitTopWall || hitBottomWall;
     }
   </script>
 </body>
