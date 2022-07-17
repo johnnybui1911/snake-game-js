@@ -20,14 +20,21 @@
     const snakeboard = document.getElementById("snakeboard");
     const snakeboard_ctx = snakeboard.getContext('2d');
 
-    let snake = [  {x: 200, y: 200},  {x: 190, y: 200},  {x: 180, y: 200},  {x: 170, y: 200},  {x: 160, y: 200},];
+    const dx = 10;
+    const dy = 0;
+
+    let snake = [{x: 200, y: 200},  {x: 190, y: 200},  {x: 180, y: 200},  {x: 170, y: 200},  {x: 160, y: 200}];
 
     // start a game
     main();
 
     function main() {
-      clearCanvas();
-      drawSnake();
+      setTimeout(() => {
+        clearCanvas();
+        moveSnake();
+        drawSnake();
+        main();
+      }, 100);
     }
 
     // draw a border around canvas
@@ -47,6 +54,20 @@
 
     function drawSnake() {
       snake.forEach(drawSnakePart);
+    }
+
+    // to move snake on canvas board
+    function moveSnake() {
+      // add new head to snake
+      const head = {
+        x: snake[0].x + dx,
+        y: snake[0].y + dy,
+      };
+      snake.unshift(head);
+
+      // remove the last element from the snake
+      snake.pop();
+      
     }
   </script>
 </body>
