@@ -2,7 +2,12 @@
 <html>
 
 <body>
-  <div id="score">0</div>
+  <div id="container">
+    <div id="title">SNAKE GAME</div>
+    <div id="score">0</div>
+    <button id="button" onclick="start()">Start</button>
+    <button id="button" onclick="retry()">Retry</button>
+  </div>
   <canvas id="snakeboard" width="400" height="400"><canvas>
   <style>
     #snakeboard {
@@ -14,6 +19,20 @@
     #score {
       text-align: center;
       font-size: 140px;
+    }
+    #title {
+      text-align: center;
+      font-size: 100px;
+    }
+    #container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center; 
+      align-items: center;
+    }
+    #button {
+      width: 100px;
+      margin: 10px;
     }
   </style>
   <script>
@@ -40,10 +59,11 @@
 
     let score = 0;
 
-    // start a game
-    main();
 
-    function main() {
+    clearCanvas();
+
+    function start() {
+    // start a game
       startGame();
 
       // generate random food
@@ -53,8 +73,13 @@
       document.addEventListener("keydown", changeDirection);
     }
 
+    function retry() {
+      location.reload();
+    }
+
     function startGame() {
       if (hasGameEnded()) {
+        document.getElementById("title").innerHTML = "GAME OVER";
         return;
       }
 
@@ -73,15 +98,15 @@
     // draw a border around canvas
     function clearCanvas() {
       snakeboard_ctx.fillStyle = board_background;
-      snakeboard_ctx.fillRect(0, 0, snakeboard.width, snakeboard.height);
       snakeboard_ctx.strokeStyle = board_border;
+      snakeboard_ctx.fillRect(0, 0, snakeboard.width, snakeboard.height);
       snakeboard_ctx.strokeRect(0, 0, snakeboard.width, snakeboard.height); 
     }
 
     function drawSnakePart(snakePart) {
       snakeboard_ctx.fillStyle = snake_col;
-      snakeboard_ctx.fillRect(snakePart.x, snakePart.y, 10, 10);
       snakeboard_ctx.strokeStyle = snake_border;
+      snakeboard_ctx.fillRect(snakePart.x, snakePart.y, 10, 10);
       snakeboard_ctx.strokeRect(snakePart.x, snakePart.y, 10, 10);
     }
 
