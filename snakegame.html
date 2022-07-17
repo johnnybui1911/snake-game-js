@@ -2,6 +2,7 @@
 <html>
 
 <body>
+  <div id="score">0</div>
   <canvas id="snakeboard" width="400" height="400"><canvas>
   <style>
     #snakeboard {
@@ -10,30 +11,49 @@
       left: 50%;
       transform: translate(-50%, -50%);
     }
+    #score {
+      text-align: center;
+      font-size: 140px;
+    }
   </style>
   <script>
     const board_border = 'black';
     const board_background = "white";
     const snake_col = 'lightblue';
     const snake_border = 'darkblue';
+    const food_col = 'lightgreen';
+    const food_border = 'darkgreen'; 
 
     const snakeboard = document.getElementById("snakeboard");
     const snakeboard_ctx = snakeboard.getContext('2d');
-
     const VELOCITY = 10;
+
     let dx = VELOCITY;
     let dy = 0;
+    
     let changingDirection = false;
 
+    let foodX;
+    let foodY;
+
     let snake = [{x: 200, y: 200}, {x: 190, y: 200}, {x: 180, y: 200}, {x: 170, y: 200}, {x: 160, y: 200}, {x: 150, y: 200}];
+
+    let score = 0;
 
     // start a game
     main();
 
-    // handle direction changing
-    document.addEventListener("keydown", changeDirection);
-
     function main() {
+      startGame();
+
+      // generate random food
+      genFood();
+
+      // handle direction changing
+      document.addEventListener("keydown", changeDirection);
+    }
+
+    function startGame() {
       if (hasGameEnded()) {
         return;
       }
@@ -41,9 +61,12 @@
       changingDirection = false;
       setTimeout(() => {
         clearCanvas();
+        drawFood();
         moveSnake();
         drawSnake();
-        main();
+
+        // loop
+        startGame();
       }, 100);
     }
 
@@ -68,15 +91,29 @@
 
     // to move snake on canvas board
     function moveSnake() {
-      // add new head to snake
+      // create the new snake's head
       const head = {
         x: snake[0].x + dx,
         y: snake[0].y + dy,
       };
+
+      // add new head to the begining of snake body
       snake.unshift(head);
 
-      // remove the last element from the snake
-      snake.pop();
+      const hasEaten = head.x === foodX && head.y === foodY;
+      if (hasEaten) {
+        // update score
+        score += 10;
+
+        // display score
+        document.getElementById('score').innerHTML = score;
+
+        // Generate new food location
+        genFood();
+      } else {
+        // remove the last element from the snake
+        snake.pop();
+      }
     }
 
     function changeDirection(event) {
@@ -130,12 +167,35 @@
       }
 
       // check if head of snake collides with canvas boundary
-      const hitLeftWall = head.x < 0 + VELOCITY;
-      const hitRightWall = head.x >= snakeboard.width - VELOCITY;
-      const hitTopWall = head.y < 0 + VELOCITY;
-      const hitBottomWall = head.y >= snakeboard.height - VELOCITY;
+      const hitLeftWall = head.x < 0;
+      const hitRightWall = head.x >= snakeboard.width;
+      const hitTopWall = head.y < 0;
+      const hitBottomWall = head.y >= snakeboard.height;
 
       return hitLeftWall || hitRightWall || hitTopWall || hitBottomWall;
+    }
+
+    function randomFood(min, max) {
+      return Math.round((Math.random() * (max-min) + min) / 10) * 10;
+    }
+
+    function genFood() {
+      foodX = randomFood(0, snakeboard.width - VELOCITY);
+      foodY = randomFood(0, snakeboard.height - VELOCITY);
+      // check if snake has eaten food
+      snake.forEach(part => {
+        const hasEaten = part.x === foodX && part.y === foodY;
+        if (hasEaten) {
+          genFood();
+        }
+      })
+    }
+
+    function drawFood() {
+      snakeboard_ctx.fillStyle = food_col;
+      snakeboard_ctx.strokeStyle = food_border;
+      snakeboard_ctx.fillRect(foodX, foodY, 10, 10);
+      snakeboard_ctx.strokeRect(foodX, foodY, 10, 10);
     }
   </script>
 </body>
